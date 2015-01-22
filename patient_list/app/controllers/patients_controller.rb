@@ -1,16 +1,26 @@
 class PatientsController < ApplicationController
-
   def show
     @patient = Patient.find params[:id]
   end
-  
+
+
+  def index
+    @patients = Patient.all
+  end
+
   def new
     @patient = Patient.new
   end
-  
+
   def create
-    @patient = Patient.create que_params
-    redirect_to root_path
+    @patient = Patient.create patient_params
+      if @patient.save
+      flash[:notice] = 'Patient data was saved successfully.'
+      redirect_to patients_path
+    else
+      flash[:error] = 'Patient data was NOT saved successfully.'
+      render :new
+    end
   end
 
   def edit
@@ -19,21 +29,36 @@ class PatientsController < ApplicationController
 
   def update
     @patient = Patient.find params[:id]
-    @patient.update_attributes que_params
-    redirect_to root_path
+    if @patient.update_attributes patient_params
+      flash[:notice] = 'Patient data was updated successfully.'
+      redirect_to patients_path
+    else
+      flash[:notice] = 'Patient data was NOT updated successfully.'
+      render :edit
+    end
+
   end
 
   def destroy
     @patient = Patient.find params[:id]
-    @patient.delete
-    redirect_to root_path
+    if @patient.delete
+      flash[:notice] = 'Patient data was deleted successfully.'
+      redirect_to patients_path
+    else
+      flash[:notice] = 'Patient data was NOT deleted successfully.'
+    end
   end
-  
 
 private
-  def que_params
-    params.require(:patient).permit(:name)
+  def patient_params
+    params.require(:patient).permit(
+        :first_name,
+        :last_name,
+        :date_of_birth,
+        :description,
+        :gender,
+        :blood_type
+      ) 
   end
-
 
 end
